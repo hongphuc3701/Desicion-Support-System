@@ -41,7 +41,7 @@ def foryou_ui():
 def recommend():
     user_input = request.form.get('user_input')
     index = np.where(pt.index == user_input)[0][0]
-    similar_items = sorted(list(enumerate(foryou[index])), key=lambda x: x[1], reverse=True)[1:20]
+    similar_items = sorted(list(enumerate(foryou[index])), key=lambda x: x[1], reverse=True)[1:10]
 
     data = []
     for i in similar_items:
