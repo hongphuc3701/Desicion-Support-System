@@ -56,6 +56,48 @@ def recommend():
     print(data)
 
     return render_template('foryou.html',data=data)
+@app.route('/sameap')
+def sameap_ui():
+    return render_template('sameap.html')
+
+@app.route('/sameap_books',methods=['POST'])
+
+
+def get_books():
+    name = request.form.get('user_input')
+    d = data_processed[data_processed['Book-Title'] == name]
+    au = d['Book-Author'].unique()
+
+    data = data_processed[data_processed['Book-Title'] != name]
+
+    if au[0] in list(data['Book-Author'].unique()):
+        k2 = data[data['Book-Author'] == au[0]]
+    k2 = k2.sort_values(by=['Book-Rating']).drop_duplicates(subset=['Book-Title'])
+    k3 = k2.head(10)
+    k3 = k3.merge(rating_avg_round,on='Book-Title')
+    
+    pu = d['Publisher'].unique()
+
+    if pu[0] in list(data['Publisher'].unique()):
+        k4 = data[data['Publisher'] == pu[0]]
+    k4 = k4.sort_values(by=['Book-Rating']).drop_duplicates(subset=['Book-Title'])
+    k5 = k4.head(10)
+    k5 = k5.merge(rating_avg_round,on='Book-Title')
+    
+        
+    return render_template('sameap.html',
+                           book_name_k3= list(k3['Book-Title'].values),
+                           image_k3=list(k3['Image-URL-M'].values),
+                           read_k3=list(k3['Book-Rating'].values),
+                           rating_k3=list(k3['avg_rating'].values),
+                           author=list(k3['Book-Author'].values),
+                           publisher=list(k5['Publisher'].values),
+                           book_name_k5= list(k5['Book-Title'].values),
+                           image_k5=list(k5['Image-URL-M'].values),
+                           read_k5=list(k5['Book-Rating'].values),
+                           rating_k5=list(k5['avg_rating'].values),
+                           authork5=list(k5['Book-Author'].values)
+                           )
 
 @app.route('/info')
 def info():
