@@ -88,13 +88,11 @@ def get_books():
     return render_template('sameap.html',
                            book_name_k3= list(k3['Book-Title'].values),
                            image_k3=list(k3['Image-URL-M'].values),
-                           read_k3=list(k3['Book-Rating'].values),
                            rating_k3=list(k3['avg_rating'].values),
                            author=list(k3['Book-Author'].values),
                            publisher=list(k5['Publisher'].values),
                            book_name_k5= list(k5['Book-Title'].values),
                            image_k5=list(k5['Image-URL-M'].values),
-                           read_k5=list(k5['Book-Rating'].values),
                            rating_k5=list(k5['avg_rating'].values),
                            authork5=list(k5['Book-Author'].values)
                            )
