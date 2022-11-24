@@ -7,7 +7,8 @@ toprated1 = pickle.load(open('toprated1.pkl','rb'))
 foryou = pickle.load(open('user_item.pkl','rb'))
 books = pickle.load(open('books.pkl','rb'))
 pt = pickle.load(open('pt.pkl','rb'))
-
+data_processed = pickle.load(open('data_processed.pkl','rb'))
+rating_avg_round = pickle.load(open('rating_avg_round.pkl','rb'))
 
 app = Flask(__name__)
 
@@ -32,7 +33,6 @@ def topratedbook():
                            score=list(toprated1['score'].values)
                            )
 
-
 @app.route('/foryou')
 def foryou_ui():
     return render_template('foryou.html')
@@ -54,15 +54,14 @@ def recommend():
         data.append(item)
 
     print(data)
-
+    
     return render_template('foryou.html',data=data)
+
 @app.route('/sameap')
 def sameap_ui():
     return render_template('sameap.html')
 
 @app.route('/sameap_books',methods=['POST'])
-
-
 def get_books():
     name = request.form.get('user_input')
     d = data_processed[data_processed['Book-Title'] == name]
@@ -83,8 +82,7 @@ def get_books():
     k4 = k4.sort_values(by=['Book-Rating']).drop_duplicates(subset=['Book-Title'])
     k5 = k4.head(10)
     k5 = k5.merge(rating_avg_round,on='Book-Title')
-    
-        
+           
     return render_template('sameap.html',
                            book_name_k3= list(k3['Book-Title'].values),
                            image_k3=list(k3['Image-URL-M'].values),
