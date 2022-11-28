@@ -1,6 +1,11 @@
-from flask import Flask,render_template,request
 import pickle
 import numpy as np
+import pandas as pd
+from flask import Flask, render_template, request
+from flask import render_template,request,Flask
+from nltk.corpus import stopwords
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 popular = pickle.load(open('popular.pkl','rb'))
 toprated1 = pickle.load(open('toprated1.pkl','rb'))
@@ -9,6 +14,8 @@ books = pickle.load(open('books.pkl','rb'))
 pt = pickle.load(open('pt.pkl','rb'))
 data_processed = pickle.load(open('data_processed.pkl','rb'))
 rating_avg_round = pickle.load(open('rating_avg_round.pkl','rb'))
+content = pickle.load(open('content.pkl','rb'))
+
 
 app = Flask(__name__)
 
@@ -37,7 +44,7 @@ def topratedbook():
 def foryou_ui():
     return render_template('foryou.html')
 
-@app.route('/foryou_books',methods=['POST'])
+@app.route('/foryou_books',methods=['POST','GET'])
 def recommend():
     user_input = request.form.get('user_input')
     index = np.where(pt.index == user_input)[0][0]
@@ -52,10 +59,42 @@ def recommend():
         item.extend(list(temp_df.drop_duplicates('Book-Title')['Image-URL-M'].values))
 
         data.append(item)
-
-    print(data)
-    
+    print(data)     
     return render_template('foryou.html',data=data)
+    
+@app.route('/content')
+def content_ui():
+    return render_template('content.html')
+
+@app.route('/content_books',methods=['POST','GET'])
+def recommendcontent():
+    user_input = request.form.get('user_input')
+    tf = TfidfVectorizer(ngram_range=(1, 2), min_df = 1, stop_words='english')
+    tfidf_matrix = tf.fit_transform(content['Book-Title'])
+    normalized_df = tfidf_matrix.astype(np.float32)
+    cosine_sim = cosine_similarity(normalized_df, normalized_df)
+        
+    isbn = books.loc[books['Book-Title'] == user_input].reset_index(drop = True).iloc[0]['ISBN']
+    title = []
+
+    idx = content.index[content['ISBN'] == isbn].tolist()[0]
+    similar_indices = cosine_sim[idx].argsort()[::-1]
+    similar_items = []
+    for i in similar_indices:
+        if content['Book-Title'][i] != user_input and content['Book-Title'][i] not in similar_items and len(similar_items) < 10:
+            similar_items.append(content['Book-Title'][i])
+            title.append(content['Book-Title'][i])
+    
+    content_df= pd.DataFrame(similar_items)
+    content_df.set_axis(["Book-Title"],
+                    axis=1,inplace=True)
+    content_df = content_df.merge(books,on='Book-Title').drop_duplicates(subset=['Book-Title'])
+
+
+    return render_template('content.html',
+                           book_name_content= list(content_df['Book-Title'].values),
+                           image_content=list(content_df['Image-URL-M'].values),
+                           author_content=list(content_df['Book-Author'].values))                    
 
 @app.route('/sameap')
 def sameap_ui():
@@ -82,7 +121,7 @@ def get_books():
     k4 = k4.sort_values(by=['Book-Rating']).drop_duplicates(subset=['Book-Title'])
     k5 = k4.head(10)
     k5 = k5.merge(rating_avg_round,on='Book-Title')
-           
+        
     return render_template('sameap.html',
                            book_name_k3= list(k3['Book-Title'].values),
                            image_k3=list(k3['Image-URL-M'].values),
@@ -100,6 +139,4 @@ def info():
     return render_template('info.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
-    
-    
+    app.run(debug=True) 
