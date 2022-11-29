@@ -71,16 +71,13 @@
     <div id='top'>
       
     <nav class="navbar navbar-light" style="background-color: rgb(245, 242, 225); ">
-        <p1 class="navbar-brand" style="color: #75420e;">Deciding what to read next?
-        </p1>
+        <p1 class="navbar-brand" style="color: #75420e;">Deciding what to read next? </p1>
         <ul class="nav navbar-nav" id="top_">
             <li><a href="/" style="color: #75420e;">Popular</a></li>
             <li><a href="/toprated" style="color: #75420e;">Mosted Rated</a></li>
             <li><a href="/foryou" style="color: #75420e;">For You</a></li>
+            <li><a href="/content" style="color: #75420e;">Similar Title</a></li>
             <li><a href="/sameap" style="color: #75420e;">Author, Publisher</a></li>
-
-            
-
         </ul>
 
         <ul class="nav navbar-nav navbar-right">
@@ -111,7 +108,7 @@
                             <div class="card-body">
                                 <img class="card-img-top" src="{{ image_k3[i] }}" style="margin-bottom: 10px;">
                                 <p class="card-text">{{ book_name_k3[i] }}</p>
-                                <h4 class="card-text">Rating - {{ rating_k3[i] }}</h4> 
+                                <h4 class="card-text">{{ author[i] }}</h4> 
                             </div>
                         </div>
                     </div>
@@ -119,7 +116,7 @@
             </center>
             {% for i in (book_name_k5) %}
             {% if loop.first %}
-                <h1 class="text-white" style="font-size:55px; margin-bottom: 50px;">Books published by{{publisher[0]}}</h1>
+                <h1 class="text-white" style="font-size:55px; margin-bottom: 50px;">Books published by {{publisher[0]}}</h1>
             {% endif %}
             {% endfor %}         
             <center>
